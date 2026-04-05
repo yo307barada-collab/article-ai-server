@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HP記事原稿アシスト</title>
+  <style>
+    :root{
+      --bg:#f6f7fb;
+      --card:#ffffff;
+      --line:#e5e7eb;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --primary:#2563eb;
+      --primary-hover:#1d4ed8;
+      --success:#15803d;
+      --shadow:0 8px 30px rgba(15, 23, 42, 0.06);
+      --radius:20px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
+      line-height:1.7;
+    }
+    .wrap{
+      max-width:1200px;
+      margin:0 auto;
+      padding:28px 20px 56px;
+    }
+    h1{
+      font-size:42px;
+      line-height:1.2;
+      margin:0 0 8px;
+    }
+    .sub{
+      color:var(--muted);
+      font-size:16px;
+      margin-bottom:26px;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns:1.1fr 0.9fr;
+      gap:24px;
+      align-items:start;
+    }
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:22px;
+    }
+    .card h2{
+      margin:0 0 10px;
+      font-size:20px;
+    }
+    .help{
+      color:var(--muted);
+      font-size:14px;
+      margin-bottom:14px;
+    }
+    textarea{
+      width:100%;
+      min-height:360px;
+      resize:vertical;
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:18px;
+      font:inherit;
+      line-height:1.8;
+      color:var(--text);
+      outline:none;
+      background:#fff;
+    }
+    .hint{
+      margin-top:16px;
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:16px 18px;
+      background:#fafafa;
+      color:var(--muted);
+      font-size:14px;
+    }
+    .hint strong{
+      display:block;
+      color:var(--text);
+      margin-bottom:8px;
+    }
+    .type-wrap{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin:18px 0;
+    }
+    .type-btn{
+      border:1px solid var(--line);
+      background:#fff;
+      color:var(--text);
+      border-radius:999px;
+      padding:10px 16px;
+      font:inherit;
+      cursor:pointer;
+    }
+    .type-btn.active{
+      background:#eff6ff;
+      color:#1d4ed8;
+      border-color:#bfdbfe;
+      font-weight:700;
+    }
+    .actions{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-top:16px;
+    }
+    button{
+      font:inherit;
+      cursor:pointer;
+      border:none;
+      border-radius:14px;
+      padding:14px 20px;
+      font-weight:700;
+    }
+    .primary{
+      background:var(--primary);
+      color:#fff;
+    }
+    .primary:hover{
+      background:var(--primary-hover);
+    }
+    .secondary{
+      background:#fff;
+      color:var(--text);
+      border:1px solid var(--line);
+    }
+    .status{
+      margin-top:14px;
+      font-size:14px;
+      color:var(--muted);
+      min-height:24px;
+    }
+    .status.success{ color:var(--success); font-weight:700; }
+    .status.error{ color:#b91c1c; font-weight:700; }
+    .result-card{
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:18px 20px;
+      background:#fff;
+      margin-bottom:16px;
+    }
+    .result-card h3{
+      margin:0 0 12px;
+      font-size:18px;
+    }
+    .content{
+      white-space:pre-wrap;
+      font-size:16px;
+    }
+    .empty{
+      color:var(--muted);
+    }
+    .warning-box{
+      display:none;
+      margin-top:14px;
+      border:1px solid #fdba74;
+      background:#fff7ed;
+      color:#9a3412;
+      border-radius:18px;
+      padding:16px 18px;
+      white-space:pre-wrap;
+      font-size:14px;
+    }
+    .warning-box.show{ display:block; }
+    .small-note{
+      color:var(--muted);
+      font-size:13px;
+      margin-top:12px;
+    }
+    @media (max-width: 960px){
+      .grid{
+        grid-template-columns:1fr;
+      }
+      h1{ font-size:34px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>HP記事原稿アシスト</h1>
+    <div class="sub">Slack投稿やメモ文を貼るだけで、学校HP向けの下書き原稿に整えます。</div>
+
+    <div class="grid">
+      <section class="card">
+        <h2>① 元原稿を貼り付ける</h2>
+        <div class="help">教員メモ・Slack投稿・簡易な活動報告でもOKです。</div>
+
+        <textarea id="sourceText" placeholder="ここに教員原稿を貼る"></textarea>
+
+        <div class="hint">
+          <strong>書いてほしい内容</strong>
+          ・何をしたか<br>
+          ・誰が参加したか<br>
+          ・どんな学びや様子があったか
+        </div>
+
+        <h2 style="margin-top:24px;">② 記事タイプを選ぶ</h2>
+        <div class="help">近いものを選ぶと、文章の雰囲気が整いやすくなります。</div>
+
+        <div class="type-wrap" id="typeWrap">
+          <button class="type-btn active" data-type="report">活動報告</button>
+          <button class="type-btn" data-type="class">授業紹介</button>
+          <button class="type-btn" data-type="event">イベント告知</button>
+        </div>
+
+        <div class="actions">
+          <button class="primary" id="generateBtn">記事の下書きを作る</button>
+          <button class="secondary" id="clearBtn">リセット</button>
+        </div>
+
+        <div class="status" id="statusText">準備完了</div>
+        <div class="warning-box" id="warningBox"></div>
+      </section>
+
+      <section class="card">
+        <h2>生成結果</h2>
+        <div class="help">必要に応じてこのままコピーし、広報担当へ共有してください。</div>
+
+        <div class="result-card">
+          <h3>タイトル</h3>
+          <div class="content empty" id="titleOutput">まだ生成されていません。</div>
+        </div>
+
+        <div class="result-card">
+          <h3>導入文</h3>
+          <div class="content empty" id="leadOutput">まだ生成されていません。</div>
+        </div>
+
+        <div class="result-card">
+          <h3>この記事でわかること（30秒）</h3>
+          <div class="content empty" id="summaryOutput">まだ生成されていません。</div>
+        </div>
+
+        <div class="result-card">
+          <h3>見出しと本文</h3>
+          <div class="content empty" id="sectionOutput">まだ生成されていません。</div>
+        </div>
+
+        <div class="actions">
+          <button class="secondary" id="copyBtn">下書きをコピー</button>
+        </div>
+        <div class="small-note">コピー内容は「タイトル・導入・要約・本文」をまとめた共有用フォーマットです。</div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const sourceText = document.getElementById("sourceText");
+    const generateBtn = document.getElementById("generateBtn");
+    const clearBtn = document.getElementById("clearBtn");
+    const copyBtn = document.getElementById("copyBtn");
+    const typeWrap = document.getElementById("typeWrap");
+    const statusText = document.getElementById("statusText");
+    const warningBox = document.getElementById("warningBox");
+
+    const titleOutput = document.getElementById("titleOutput");
+    const leadOutput = document.getElementById("leadOutput");
+    const summaryOutput = document.getElementById("summaryOutput");
+    const sectionOutput = document.getElementById("sectionOutput");
+
+    let selectedType = "report";
+    let latestFormattedText = "";
+
+    typeWrap.addEventListener("click", (e) => {
+      const btn = e.target.closest(".type-btn");
+      if (!btn) return;
+      document.querySelectorAll(".type-btn").forEach(el => el.classList.remove("active"));
+      btn.classList.add("active");
+      selectedType = btn.dataset.type;
+    });
+
+    function setStatus(text, mode = "") {
+      statusText.textContent = text;
+      statusText.className = "status";
+      if (mode) statusText.classList.add(mode);
+    }
+
+    function renderWarnings(warnings = []) {
+      if (!warnings.length) {
+        warningBox.classList.remove("show");
+        warningBox.textContent = "";
+        return;
+      }
+      warningBox.classList.add("show");
+      warningBox.textContent = "注意点\n" + warnings.map(w => `・${w}`).join("\n");
+    }
+
+    function renderSummary(points = []) {
+      if (!points.length) {
+        summaryOutput.classList.add("empty");
+        summaryOutput.textContent = "まだ生成されていません。";
+        return;
+      }
+      summaryOutput.classList.remove("empty");
+      summaryOutput.innerHTML = points.map(p => `・${p}`).join("\n\n");
+    }
+
+    function renderSections(sections = []) {
+      if (!sections.length) {
+        sectionOutput.classList.add("empty");
+        sectionOutput.textContent = "まだ生成されていません。";
+        return;
+      }
+      sectionOutput.classList.remove("empty");
+      sectionOutput.innerHTML = sections.map((sec, i) => {
+        return `<div style="margin-bottom:18px;"><strong>${i + 1}. ${sec.h2}</strong>\n\n${sec.body}</div>`;
+      }).join("\n\n");
+    }
+
+    function buildShareText(data) {
+      const title = data.title || "";
+      const lead = data.lead || "";
+      const summaries = (data.summary_points || []).map((s, i) => `${i + 1}. ${s}`).join("\n");
+      const sections = (data.sections || []).map((sec, i) => {
+        return `【見出し${i + 1}】\n${sec.h2}\n【本文${i + 1}】\n${sec.body}`;
+      }).join("\n\n");
+
+      return `【タイトル】
+${title}
+
+【導入】
+${lead}
+
+【30秒要約】
+${summaries}
+
+${sections}`;
+    }
+
+    generateBtn.addEventListener("click", async () => {
+      const text = sourceText.value.trim();
+
+      if (!text) {
+        setStatus("元原稿を入力してください。", "error");
+        return;
+      }
+
+      setStatus("AIが下書きを作成中です...", "");
+
+      try {
+        const res = await fetch("http://localhost:3001/api/format-article-clean", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            text,
+            articleType: selectedType
+          })
+        });
+
+        const json = await res.json();
+
+        if (!json.ok) {
+          setStatus("生成に失敗しました。", "error");
+          renderWarnings([json.error || "記事整形に失敗しました。"]);
+          return;
+        }
+
+        const data = json.data;
+
+        titleOutput.classList.remove("empty");
+        titleOutput.textContent = data.title || "タイトルが生成されませんでした。";
+
+        leadOutput.classList.remove("empty");
+        leadOutput.textContent = data.lead || "導入文が生成されませんでした。";
+
+        renderSummary(data.summary_points || []);
+        renderSections(data.sections || []);
+        renderWarnings(data.warnings || []);
+
+        latestFormattedText = buildShareText(data);
+        setStatus("下書きが完成しました。必要に応じて内容を確認してください。", "success");
+      } catch (error) {
+        console.error(error);
+        setStatus("接続エラーが発生しました。", "error");
+        renderWarnings(["ローカルサーバーまたはAPI接続を確認してください。"]);
+      }
+    });
+
+    copyBtn.addEventListener("click", async () => {
+      if (!latestFormattedText) {
+        setStatus("先に下書きを生成してください。", "error");
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(latestFormattedText);
+        setStatus("下書きをコピーしました。", "success");
+      } catch (error) {
+        console.error(error);
+        setStatus("コピーに失敗しました。", "error");
+      }
+    });
+
+    clearBtn.addEventListener("click", () => {
+      sourceText.value = "";
+      titleOutput.textContent = "まだ生成されていません。";
+      titleOutput.classList.add("empty");
+      leadOutput.textContent = "まだ生成されていません。";
+      leadOutput.classList.add("empty");
+      summaryOutput.textContent = "まだ生成されていません。";
+      summaryOutput.classList.add("empty");
+      sectionOutput.textContent = "まだ生成されていません。";
+      sectionOutput.classList.add("empty");
+      renderWarnings([]);
+      latestFormattedText = "";
+      setStatus("リセットしました。");
+    });
+  </script>
+</body>
+</html>

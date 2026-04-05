@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HP記事原稿アシスト</title>
+  <style>
+    :root{
+      --bg:#f5f7fb;
+      --card:#ffffff;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --line:#e5e7eb;
+      --primary:#2563eb;
+      --primary-hover:#1d4ed8;
+      --soft:#eff6ff;
+      --warn-bg:#fff7ed;
+      --warn-text:#b45309;
+      --success-bg:#ecfdf3;
+      --success-text:#166534;
+      --shadow:0 10px 30px rgba(15, 23, 42, 0.06);
+      --radius:18px;
+    }
+
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans JP","Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      line-height:1.6;
+    }
+
+    .wrap{
+      max-width:1080px;
+      margin:0 auto;
+      padding:32px 20px 56px;
+    }
+
+    .hero{
+      margin-bottom:24px;
+    }
+
+    .hero h1{
+      margin:0 0 8px;
+      font-size:32px;
+      line-height:1.2;
+      letter-spacing:-0.02em;
+    }
+
+    .hero p{
+      margin:0;
+      color:var(--muted);
+      font-size:15px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:1.15fr 0.85fr;
+      gap:20px;
+      align-items:start;
+    }
+
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:22px;
+    }
+
+    .section-title{
+      margin:0 0 10px;
+      font-size:18px;
+      font-weight:700;
+    }
+
+    .sub{
+      margin:0 0 16px;
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    textarea{
+      width:100%;
+      min-height:330px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:16px;
+      resize:vertical;
+      font:inherit;
+      background:#fff;
+      color:var(--text);
+      outline:none;
+      transition:border-color .2s, box-shadow .2s;
+    }
+
+    textarea:focus, .type-btn:focus, .primary-btn:focus, .ghost-btn:focus{
+      border-color:#93c5fd;
+      box-shadow:0 0 0 4px rgba(37,99,235,.12);
+      outline:none;
+    }
+
+    .hint{
+      margin-top:12px;
+      padding:14px 16px;
+      background:#f9fafb;
+      border:1px solid var(--line);
+      border-radius:14px;
+      font-size:13px;
+      color:var(--muted);
+    }
+
+    .hint strong{
+      display:block;
+      color:var(--text);
+      margin-bottom:6px;
+      font-size:13px;
+    }
+
+    .type-wrap{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:8px;
+    }
+
+    .type-btn{
+      border:1px solid var(--line);
+      background:#fff;
+      color:var(--text);
+      border-radius:999px;
+      padding:10px 14px;
+      font:inherit;
+      cursor:pointer;
+      transition:.2s;
+    }
+
+    .type-btn.active{
+      background:var(--soft);
+      color:var(--primary);
+      border-color:#bfdbfe;
+      font-weight:700;
+    }
+
+    .action-box{
+      margin-top:18px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .primary-btn, .ghost-btn{
+      border:none;
+      border-radius:12px;
+      padding:12px 18px;
+      font:inherit;
+      font-weight:700;
+      cursor:pointer;
+      transition:.2s;
+    }
+
+    .primary-btn{
+      background:var(--primary);
+      color:#fff;
+    }
+
+    .primary-btn:hover{
+      background:var(--primary-hover);
+    }
+
+    .ghost-btn{
+      background:#fff;
+      border:1px solid var(--line);
+      color:var(--text);
+    }
+
+    .status{
+      margin-top:14px;
+      font-size:13px;
+      color:var(--muted);
+      min-height:22px;
+    }
+
+    .status.loading{
+      color:var(--primary);
+      font-weight:600;
+    }
+
+    .status.success{
+      color:var(--success-text);
+      font-weight:600;
+    }
+
+    .status.error{
+      color:#b91c1c;
+      font-weight:600;
+    }
+
+    .output{
+      display:grid;
+      gap:16px;
+    }
+
+    .result-card{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:18px;
+    }
+
+    .result-card h3{
+      margin:0 0 10px;
+      font-size:15px;
+    }
+
+    .result-card .content{
+      white-space:pre-wrap;
+      font-size:14px;
+    }
+
+    .result-card .content.small-list div{
+      margin-bottom:8px;
+    }
+
+    .warning-box{
+      display:none;
+      margin-top:8px;
+      background:var(--warn-bg);
+      color:var(--warn-text);
+      border:1px solid #fed7aa;
+      border-radius:14px;
+      padding:14px 16px;
+      font-size:13px;
+      white-space:pre-wrap;
+    }
+
+    .warning-box.show{
+      display:block;
+    }
+
+    .empty{
+      color:var(--muted);
+      font-size:14px;
+    }
+
+    .footer-copy{
+      margin-top:16px;
+      display:flex;
+      justify-content:flex-end;
+    }
+
+    .mini-note{
+      margin-top:8px;
+      color:var(--muted);
+      font-size:12px;
+    }
+
+    @media (max-width: 920px){
+      .grid{
+        grid-template-columns:1fr;
+      }
+
+      .hero h1{
+        font-size:28px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <h1>HP記事原稿アシスト</h1>
+      <p>Slack投稿やメモ文を貼るだけで、学校HP向けの下書き原稿に整えます。</p>
+    </div>
+
+    <div class="grid">
+      <section class="card">
+        <h2 class="section-title">① 元原稿を貼り付ける</h2>
+        <p class="sub">教員メモ・Slack投稿・簡易な活動報告でもOKです。</p>
+
+        <textarea id="sourceText" placeholder="例：
+
+【eスポーツコース】
+『7つの習慣』の考え方をもとに、セルフコーチングについて学びました。
+事実と自分の解釈を分けて考えるワークを行い、物事を客観的に捉える視点について理解を深めました。
+競技力の向上だけでなく、日常生活にもつながる学びとなりました。"></textarea>
+
+        <div class="hint">
+          <strong>書いてほしい内容</strong>
+          ・何をしたか<br>
+          ・誰が参加したか<br>
+          ・どんな学びや様子があったか
+        </div>
+
+        <h2 class="section-title" style="margin-top:22px;">② 記事タイプを選ぶ</h2>
+        <p class="sub">近いものを選ぶと、文章の雰囲気が整いやすくなります。</p>
+
+        <div class="type-wrap" id="typeWrap">
+          <button class="type-btn active" data-type="report">活動レポート</button>
+          <button class="type-btn" data-type="class">授業紹介</button>
+          <button class="type-btn" data-type="event">イベント告知</button>
+        </div>
+
+        <div class="action-box">
+          <button class="primary-btn" id="generateBtn">記事の下書きを作る</button>
+          <button class="ghost-btn" id="clearBtn">リセット</button>
+        </div>
+
+        <div class="status" id="statusText">準備完了</div>
+        <div class="warning-box" id="warningBox"></div>
+      </section>
+
+      <section class="card">
+        <h2 class="section-title">生成結果</h2>
+        <p class="sub">必要に応じてこのままコピーし、広報担当へ共有してください。</p>
+
+        <div class="output">
+          <div class="result-card">
+            <h3>タイトル</h3>
+            <div class="content empty" id="titleCandidates"></div>
+
+          <div class="result-card">
+            <h3>導入文</h3>
+            <div class="content empty" id="leadOutput">まだ生成されていません。</div>
+          </div>
+
+          <div class="result-card">
+            <h3>この記事でわかること（30秒）</h3>
+            <div class="content small-list empty" id="summaryOutput">まだ生成されていません。</div>
+          </div>
+
+          <div class="result-card">
+            <h3>見出しと本文</h3>
+            <div
+          class="content empty" id="sectionOutput">まだ生成されていません。</div>
+          </div>
+        </div>
+
+        <div class="footer-copy">
+          <button class="ghost-btn" id="copyBtn">下書きをコピー</button>
+        </div>
+        <div class="mini-note">コピー内容は「タイトル候補・導入・要約・本文」をまとめた共有用フォーマットです。</div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const sourceText = document.getElementById("sourceText");
+    const generateBtn = document.getElementById("generateBtn");
+    const clearBtn = document.getElementById("clearBtn");
+    const copyBtn = document.getElementById("copyBtn");
+    const statusText = document.getElementById("statusText");
+    const warningBox = document.getElementById("warningBox");
+    const titleCandidates = document.getElementById("titleCandidates");
+    const leadOutput = document.getElementById("leadOutput");
+    const summaryOutput = document.getElementById("summaryOutput");
+    const sectionOutput = document.getElementById("sectionOutput");
+    const typeWrap = document.getElementById("typeWrap");
+
+    let selectedType = "report";
+    let latestFormattedText = "";
+
+    typeWrap.addEventListener("click", (e) => {
+      const btn = e.target.closest(".type-btn");
+      if (!btn) return;
+
+      document.querySelectorAll(".type-btn").forEach(el => el.classList.remove("active"));
+      btn.classList.add("active");
+      selectedType = btn.dataset.type;
+    });
+
+    function setStatus(text, type = "") {
+      statusText.textContent = text;
+      statusText.className = "status";
+      if (type) statusText.classList.add(type);
+    }
+
+    function renderWarnings(warnings = []) {
+      if (!warnings.length) {
+        warningBox.classList.remove("show");
+        warningBox.textContent = "";
+        return;
+      }
+      warningBox.classList.add("show");
+      warningBox.textContent = "注意点\n" + warnings.map(w => "・" + w).join("\n");
+    }
+
+    function renderList(container, items, numbered = false) {
+      if (!items || !items.length) {
+        container.classList.add("empty");
+        container.innerHTML = "まだ生成されていません。";
+        return;
+      }
+
+      container.classList.remove("empty");
+      container.innerHTML = items.map((item, i) => {
+        return `<div>${numbered ? `${i + 1}. ` : "・"}${item}</div>`;
+      }).join("");
+    }
+
+    function renderSections(sections = []) {
+      if (!sections.length) {
+        sectionOutput.classList.add("empty");
+        sectionOutput.textContent = "まだ生成されていません。";
+        return;
+      }
+
+      sectionOutput.classList.remove("empty");
+      sectionOutput.innerHTML = sections.map((sec, i) => {
+        return `<div style="margin-bottom:18px;">
+          <div style="font-weight:700; margin-bottom:6px;">${i + 1}. ${sec.h2 || ""}</div>
+          <div>${sec.body || ""}</div>
+        </div>`;
+      }).join("");
+    }
+
+    function buildShareText(data) {
+    const title = data.seo?.title || "";
+
+  const summaries = (data.summary_points || [])
+    .map((s, i) => `${i + 1}. ${s}`)
+    .join("\n");
+
+  const sections = (data.sections || [])
+    .map((sec, i) => {
+      return `【見出し${i + 1}】\n${sec.h2}\n【本文${i + 1}】\n${sec.body}`;
+    })
+    .join("\n\n");
+
+  return `【タイトル】
+${title}
+
+【30秒要約】
+${summaries}
+
+${sections}`;
+}
+
+    generateBtn.addEventListener("click", async () => {
+      const text = sourceText.value.trim();
+
+      if (!text) {
+        setStatus("元原稿を入力してください。", "error");
+        return;
+      }
+
+      setStatus("AIが下書きを作成中です...", "loading");
+      renderWarnings([]);
+
+      try {
+        const res = await fetch("http://localhost:3000/api/format-article", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            text,
+            articleType: selectedType,
+            strictMode: true
+          })
+        });
+
+        const json = await res.json();
+
+        if (!json.ok) {
+          setStatus("生成に失敗しました。", "error");
+          renderWarnings([json.error || "AI整形に失敗しました。"]);
+          return;
+        }
+
+        const data = json.data;
+
+        const fallbackTitle =
+  data.seo?.title ||
+  "タイトルが生成されませんでした。";
+
+titleCandidates.classList.remove("empty");
+titleCandidates.innerHTML = `<div>${fallbackTitle}</div>`;
+
+        leadOutput.classList.remove("empty");
+        leadOutput.textContent = data.lead || "導入文が生成されませんでした。";
+
+        renderList(summaryOutput, data.summary_points || []);
+        renderSections(data.sections || []);
+        renderWarnings(data.warnings || []);
+
+        latestFormattedText = buildShareText(data);
+        setStatus("下書きが完成しました。必要に応じて内容を確認してください。", "success");
+      } catch (error) {
+        console.error(error);
+        setStatus("接続エラーが発生しました。サーバーが起動しているか確認してください。", "error");
+        renderWarnings(["ローカルサーバーまたはAPI接続を確認してください。"]);
+      }
+    });
+
+    copyBtn.addEventListener("click", async () => {
+      if (!latestFormattedText) {
+        setStatus("先に下書きを生成してください。", "error");
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(latestFormattedText);
+        setStatus("下書きをコピーしました。", "success");
+      } catch (error) {
+        console.error(error);
+        setStatus("コピーに失敗しました。", "error");
+      }
+    });
+
+    clearBtn.addEventListener("click", () => {
+      sourceText.value = "";
+      titleCandidates.innerHTML = "まだ生成されていません。";
+      titleCandidates.classList.add("empty");
+      leadOutput.textContent = "まだ生成されていません。";
+      leadOutput.classList.add("empty");
+      summaryOutput.innerHTML = "まだ生成されていません。";
+      summaryOutput.classList.add("empty");
+      sectionOutput.textContent = "まだ生成されていません。";
+      sectionOutput.classList.add("empty");
+      renderWarnings([]);
+      latestFormattedText = "";
+      setStatus("リセットしました。");
+    });
+  </script>
+</body>
+</html>
