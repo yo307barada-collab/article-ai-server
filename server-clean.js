@@ -241,7 +241,7 @@ ${text}
 
     const cleaned = {
       title: normalizeTitle(output.title, articleType),
-      lead: normalizeLead(output.lead, output.title),
+      lead: normalizeLead(output.lead, output.title),https://hi-ad.jp/html/upload/save_image/product/0617141956_6850fafcb732c.webp
       summary_points: normalizeSummaryPoints(output.summary_points),
       sections: normalizeSections(output.sections),
       warnings: Array.isArray(output.warnings) ? output.warnings : []
@@ -260,7 +260,8 @@ ${text}
   }
 });
 
-const port = 3001;
-app.listen(port, () => {
-  console.log(`Server running on http://localhost:${port}`);
+const PORT = process.env.PORT || 3001;
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
