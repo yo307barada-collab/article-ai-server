@@ -241,7 +241,7 @@ ${text}
 
     const cleaned = {
       title: normalizeTitle(output.title, articleType),
-      lead: normalizeLead(output.lead, output.title),https://hi-ad.jp/html/upload/save_image/product/0617141956_6850fafcb732c.webp
+     lead: normalizeLead(output.lead, output.title),
       summary_points: normalizeSummaryPoints(output.summary_points),
       sections: normalizeSections(output.sections),
       warnings: Array.isArray(output.warnings) ? output.warnings : []
