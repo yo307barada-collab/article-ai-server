@@ -350,7 +350,7 @@ ${sections}`;
       setStatus("AIが下書きを作成中です...", "");
 
       try {
-        const res = await fetch("http://localhost:3001/api/format-article-clean", {
+       const res = await fetch("/api/format-article-clean", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
